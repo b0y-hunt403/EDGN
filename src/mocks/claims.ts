@@ -1,0 +1,43 @@
+import type { Claim } from "@/types";
+
+export const claims: Claim[] = [
+  {
+    id: "CLM-2026-00184",
+    guaranteeReference: "EDGN-2026-004864",
+    beneficiary: "Ethiopian Electric Power",
+    applicant: "Meskel Construction PLC",
+    amount: 2200000,
+    currency: "ETB",
+    reason: "Delay-related contractual demand under Clause 14.2",
+    submittedDate: "28 Aug 2026",
+    status: "UNDER_REVIEW",
+    bank: "Commercial Bank of Ethiopia",
+    dueDate: "04 Sep 2026",
+  },
+  {
+    id: "CLM-2026-00181",
+    guaranteeReference: "EDGN-2026-004852",
+    beneficiary: "Oromia Roads Authority",
+    applicant: "Abay Civil Works PLC",
+    amount: 1450000,
+    currency: "ETB",
+    reason: "Incomplete performance obligations",
+    submittedDate: "24 Aug 2026",
+    status: "PAYMENT_PENDING",
+    bank: "Awash Bank",
+    dueDate: "02 Sep 2026",
+  },
+  {
+    id: "CLM-2026-00176",
+    guaranteeReference: "EDGN-2026-004811",
+    beneficiary: "Ethiopian Shipping and Logistics",
+    applicant: "Danat Trading Share Company",
+    amount: 780000,
+    currency: "ETB",
+    reason: "Documentary discrepancy",
+    submittedDate: "18 Aug 2026",
+    status: "REJECTED",
+    bank: "Dashen Bank",
+    dueDate: "Closed 25 Aug 2026",
+  },
+];
