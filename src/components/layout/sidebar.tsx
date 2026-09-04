@@ -2,11 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ChevronLeft, HelpCircle, X } from "lucide-react";
+import { useState } from "react";
+import { ChevronLeft, HelpCircle, LogOut, X } from "lucide-react";
 import { Brand } from "@/components/layout/brand";
 import { navigation } from "@/config/navigation";
 import { cn } from "@/lib/utils";
 import { useDemo } from "@/store/demo-store";
+import { useAuth } from "@/store/auth-store";
 
 export function Sidebar({
   open,
@@ -21,7 +23,15 @@ export function Sidebar({
 }) {
   const pathname = usePathname();
   const { role } = useDemo();
+  const { logout } = useAuth();
   const sections = navigation[role];
+  const [loggingOut, setLoggingOut] = useState(false);
+
+  async function handleLogout() {
+    setLoggingOut(true);
+    await logout();
+    window.location.href = "/login";
+  }
 
   return (
     <>
@@ -54,35 +64,6 @@ export function Sidebar({
           >
             <X className="size-4" />
           </button>
-        </div>
-
-        <div className="border-b border-white/8 px-4 py-3">
-          <div
-            className={cn(
-              "rounded-lg border border-[#62d2bd]/15 bg-[#62d2bd]/6 px-3 py-2",
-              collapsed && "lg:flex lg:justify-center lg:px-2",
-            )}
-          >
-            <div className="flex items-center gap-2">
-              <span className="size-2 rounded-full bg-[#62d2bd]" />
-              <span
-                className={cn(
-                  "text-[10px] font-bold uppercase tracking-[0.12em] text-[#9be1d3]",
-                  collapsed && "lg:hidden",
-                )}
-              >
-                Demo Environment
-              </span>
-            </div>
-            <p
-              className={cn(
-                "mt-1 text-[10px] leading-4 text-slate-400",
-                collapsed && "lg:hidden",
-              )}
-            >
-              Mock data · no production actions
-            </p>
-          </div>
         </div>
 
         <nav className="flex-1 overflow-y-auto px-3 py-4">
@@ -159,6 +140,18 @@ export function Sidebar({
             <HelpCircle className="size-[17px]" />
             <span className={cn(collapsed && "lg:hidden")}>Help & guidance</span>
           </Link>
+          <button
+            type="button"
+            disabled={loggingOut}
+            onClick={handleLogout}
+            className={cn(
+              "mt-1 flex h-9 w-full items-center gap-3 rounded-lg px-3 text-xs font-medium text-slate-400 hover:bg-white/6 hover:text-white disabled:opacity-50",
+              collapsed && "lg:justify-center lg:px-2",
+            )}
+          >
+            <LogOut className="size-[17px]" />
+            <span className={cn(collapsed && "lg:hidden")}>Sign out</span>
+          </button>
           <button
             type="button"
             onClick={onToggleCollapsed}

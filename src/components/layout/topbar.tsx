@@ -1,15 +1,26 @@
 "use client";
 
 import Link from "next/link";
-import { Menu, QrCode } from "lucide-react";
+import { useState } from "react";
+import { Menu, QrCode, LogOut } from "lucide-react";
 import { GlobalSearch } from "@/components/layout/global-search";
 import { NotificationPanel } from "@/components/layout/notification-panel";
 import { RoleSwitcher } from "@/components/layout/role-switcher";
 import { useDemo } from "@/store/demo-store";
+import { useAuth } from "@/store/auth-store";
 import { translate } from "@/i18n/dictionaries";
 
 export function Topbar({ onOpenMenu }: { onOpenMenu: () => void }) {
   const { currentUser, language, setLanguage } = useDemo();
+  const { logout } = useAuth();
+  const [loggingOut, setLoggingOut] = useState(false);
+
+  async function handleLogout() {
+    setLoggingOut(true);
+    await logout();
+    window.location.href = "/login";
+  }
+
   return (
     <header className="sticky top-0 z-30 flex h-[72px] items-center border-b border-slate-200 bg-white/95 px-4 backdrop-blur sm:px-6">
       <button
@@ -49,6 +60,15 @@ export function Topbar({ onOpenMenu }: { onOpenMenu: () => void }) {
             </p>
             <p className="truncate text-[10px] text-slate-500">{currentUser.title}</p>
           </div>
+          <button
+            type="button"
+            disabled={loggingOut}
+            onClick={handleLogout}
+            className="flex size-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-slate-600 disabled:opacity-50"
+            title="Sign out"
+          >
+            <LogOut className="size-4" />
+          </button>
         </div>
       </div>
     </header>

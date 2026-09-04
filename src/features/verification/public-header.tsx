@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { FlaskConical, ShieldCheck } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
 
 export function PublicHeader() {
   return (
@@ -24,11 +24,10 @@ export function PublicHeader() {
             Verification help
           </Link>
           <Link
-            href="/applicant"
+            href="/login"
             className="ml-1 inline-flex items-center gap-2 rounded-lg border border-[#62d2bd]/25 bg-[#62d2bd]/10 px-3 py-2 text-xs font-semibold text-[#a2e4d7]"
           >
-            <FlaskConical className="size-3.5" />
-            Demo Environment
+            Sign in
           </Link>
         </nav>
       </div>

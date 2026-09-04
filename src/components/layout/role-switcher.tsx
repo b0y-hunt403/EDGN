@@ -12,6 +12,7 @@ import {
 import { demoUsers, roleLabels } from "@/mocks/users";
 import { roleHome } from "@/config/roles";
 import { useDemo } from "@/store/demo-store";
+import { useAuth } from "@/store/auth-store";
 import type { DemoRoleId } from "@/types";
 import { cn } from "@/lib/utils";
 
@@ -20,10 +21,12 @@ const roles = Object.keys(roleLabels) as DemoRoleId[];
 export function RoleSwitcher() {
   const [open, setOpen] = useState(false);
   const { role, currentUser, setRole, resetDemo, busyAction } = useDemo();
+  const { switchUserRole } = useAuth();
   const router = useRouter();
 
   const chooseRole = (nextRole: DemoRoleId) => {
     setRole(nextRole);
+    switchUserRole(nextRole);
     setOpen(false);
     router.push(roleHome[nextRole]);
   };
