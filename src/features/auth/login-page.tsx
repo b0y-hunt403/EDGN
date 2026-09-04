@@ -14,15 +14,11 @@ import {
   ShieldCheck,
   ArrowRight,
   LoaderCircle,
-  ChevronDown,
-  ChevronUp,
-  UsersRound,
 } from "lucide-react";
 import { useAuth } from "@/store/auth-store";
-import { demoAccounts } from "@/mocks/demo-accounts";
+import { findDemoAccountByEmail } from "@/mocks/demo-accounts";
 import { roleHome } from "@/config/roles";
 import { cn } from "@/lib/utils";
-import type { DemoRoleId } from "@/types";
 
 export function LoginPage() {
   const router = useRouter();
@@ -33,7 +29,6 @@ export function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showDemoAccounts, setShowDemoAccounts] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<{
     email?: string;
     password?: string;
@@ -63,24 +58,11 @@ export function LoginPage() {
     setIsSubmitting(true);
     try {
       await login({ email: email.trim(), password, rememberMe });
-      const account = demoAccounts.find(
-        (a) => a.email.toLowerCase() === email.trim().toLowerCase(),
-      );
-      const targetRole = account?.roleId ?? "applicant";
-      router.push(roleHome[targetRole]);
+      const account = findDemoAccountByEmail(email.trim());
+      router.push(roleHome[account?.roleId ?? "applicant"]);
     } catch {
     } finally {
       setIsSubmitting(false);
-    }
-  }
-
-  function handleDemoAccountClick(roleId: DemoRoleId) {
-    const account = demoAccounts.find((a) => a.roleId === roleId);
-    if (account) {
-      setEmail(account.email);
-      setPassword(account.password);
-      setFieldErrors({});
-      clearError();
     }
   }
 
@@ -277,66 +259,6 @@ export function LoginPage() {
               Get started
             </Link>
           </p>
-
-          {/* Demo accounts */}
-          <div className="mt-8 border-t border-slate-200 pt-6">
-            <button
-              type="button"
-              onClick={() => setShowDemoAccounts((v) => !v)}
-              className="flex w-full items-center justify-between rounded-lg border border-dashed border-slate-300 bg-slate-50 px-4 py-3 text-left transition hover:border-[#0f6f68]/30 hover:bg-[#0f6f68]/5"
-            >
-              <div className="flex items-center gap-2.5">
-                <div className="flex size-8 items-center justify-center rounded-lg bg-[#e7f4f1] text-[#0f6f68]">
-                  <UsersRound className="size-4" />
-                </div>
-                <div>
-                  <p className="text-xs font-bold uppercase tracking-wide text-[#0f6f68]">
-                    Demo Accounts
-                  </p>
-                  <p className="text-[11px] text-slate-500">
-                    Quick access for presentation
-                  </p>
-                </div>
-              </div>
-              {showDemoAccounts ? (
-                <ChevronUp className="size-4 text-slate-400" />
-              ) : (
-                <ChevronDown className="size-4 text-slate-400" />
-              )}
-            </button>
-
-            {showDemoAccounts ? (
-              <div className="mt-3 space-y-1.5">
-                {demoAccounts.map((account) => (
-                  <button
-                    key={account.roleId}
-                    type="button"
-                    onClick={() => handleDemoAccountClick(account.roleId)}
-                    className={cn(
-                      "flex w-full items-center gap-3 rounded-lg border border-transparent px-3 py-2.5 text-left transition hover:border-[#0f6f68]/20 hover:bg-[#f2f9f7]",
-                      email === account.email && "border-[#0f6f68]/30 bg-[#f2f9f7]",
-                    )}
-                  >
-                    <div className="flex size-8 shrink-0 items-center justify-center rounded-md bg-[#173b53] text-[10px] font-bold text-white">
-                      {account.label.charAt(0)}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-xs font-semibold text-slate-800">
-                        {account.label}
-                      </p>
-                      <p className="truncate text-[11px] text-slate-500">
-                        {account.email}
-                      </p>
-                    </div>
-                    <ArrowRight className="size-3.5 shrink-0 text-slate-300" />
-                  </button>
-                ))}
-                <p className="pt-2 text-center text-[10px] text-slate-400">
-                  Password: Demo@123
-                </p>
-              </div>
-            ) : null}
-          </div>
         </div>
       </div>
     </div>
