@@ -29,8 +29,8 @@ Interactive presentation demo of the **Ethiopian Digital Guarantee Network (EDGN
 ### Install
 
 ```bash
-git clone https://github.com/<your-org>/edgn-frontend-demo.git
-cd edgn-frontend-demo
+git clone https://github.com/b0y-hunt403/EDGN.git
+cd EDGN
 npm install
 ```
 
