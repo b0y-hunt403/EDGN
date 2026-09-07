@@ -9,18 +9,19 @@ import { useDemo } from "@/store/demo-store";
 
 const journey = [
   { role: "Applicant", href: "/applicant/applications/new", title: "Create and submit a guarantee request", reference: "APP-2026-00942" },
-  { role: "Bank Maker", href: "/bank/work-queue", title: "Review the submitted request and send to checker", reference: "APP-2026-00942" },
-  { role: "Bank Checker", href: "/bank/approvals", title: "Approve the independently prepared application", reference: "APP-2026-00942" },
-  { role: "Bank Signatory", href: "/bank/signatures", title: "Simulate signature and issue the guarantee", reference: "APP-2026-00942" },
+  { role: "Bank Maker", href: "/bank/drafts", title: "Review the submitted request and send to checker", reference: "APP-2026-00942" },
+  { role: "Bank Checker", href: "/bank/pending-reviews", title: "Approve the independently prepared application", reference: "APP-2026-00942" },
+  { role: "Bank Approver", href: "/bank/pending-approvals", title: "Authorize and sign the guarantee in the signature ledger", reference: "APP-2026-00942" },
+  { role: "Bank Admin", href: "/bank/admin/monitoring", title: "Review guarantee monitoring and approval pipeline", reference: "CBE Bank" },
   { role: "Public", href: "/verify", title: "Verify the newly issued or seeded guarantee", reference: "EDGN-V-2026-004871" },
-  { role: "EDGN Admin", href: "/admin", title: "Review network, security, and integration health", reference: "Platform operations" },
+  { role: "Super Admin", href: "/admin", title: "Review network, security, and integration health", reference: "Platform operations" },
 ];
 
 export function DemoHelp() {
   const { resetDemo, busyAction, addToast } = useDemo();
   return (
     <>
-      <PageHeader eyebrow="Presenter workspace" title="EDGN demonstration guide" description="A concise, connected route through the platform's applicant, bank, public, administration, judicial, and developer experiences." actions={<Button variant="outline" loading={busyAction === "reset-demo"} onClick={() => void resetDemo()}><RotateCcw className="size-4" />Reset demo state</Button>} />
+      <PageHeader eyebrow="Presenter workspace" title="EDGN demonstration guide" description="A concise, connected route through the platform's applicant, bank, public, and administration experiences." actions={<Button variant="outline" loading={busyAction === "reset-demo"} onClick={() => void resetDemo()}><RotateCcw className="size-4" />Reset demo state</Button>} />
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
         <Card className="overflow-hidden"><CardHeader title="Recommended end-to-end presentation" description="Allow about 10–12 minutes for the core connected workflow." /><div className="divide-y divide-slate-100">{journey.map((item, index) => <Link key={item.role} href={item.href} className="group flex gap-4 px-5 py-4 transition hover:bg-slate-50"><div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[#173b53] text-xs font-bold text-white">{index + 1}</div><div className="min-w-0 flex-1"><div className="flex flex-wrap items-center gap-2"><p className="text-xs font-bold uppercase tracking-wider text-[#0f6f68]">{item.role}</p><span className="font-mono text-[10px] text-slate-400">{item.reference}</span></div><p className="mt-1 text-sm font-semibold text-slate-900">{item.title}</p></div><ArrowRight className="mt-2 size-4 text-slate-300 transition group-hover:translate-x-0.5 group-hover:text-slate-600" /></Link>)}</div></Card>
         <div className="space-y-5">

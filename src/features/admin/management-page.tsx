@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Check, Edit3, Plus, Power, Save, Search } from "lucide-react";
+import { Check, Edit3, Eye, Plus, Power, Save, Search, ShieldAlert } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/form-controls";
@@ -15,6 +15,7 @@ import { EmptyState } from "@/components/shared/states";
 import { adminDatasets } from "@/mocks/management";
 import { adminService } from "@/services/admin.service";
 import { useDemo } from "@/store/demo-store";
+import { hasPermission } from "@/config/permissions";
 import type { ManagementCell, ManagementDataset } from "@/types";
 
 type ManagementRow = Record<string, ManagementCell>;
@@ -27,7 +28,19 @@ export function ManagementPage({ datasetKey }: { datasetKey: string }) {
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [createOpen, setCreateOpen] = useState(false);
   const [newLabel, setNewLabel] = useState("");
-  const { addToast } = useDemo();
+  const { addToast, role } = useDemo();
+
+  const moduleKey =
+    datasetKey === "branches"
+      ? "branches"
+      : datasetKey === "approvals"
+        ? "approvalMatrix"
+        : datasetKey === "sla"
+          ? "slaRules"
+          : datasetKey;
+
+  const canCreate = hasPermission(role, moduleKey, "create");
+  const canUpdate = hasPermission(role, moduleKey, "update");
 
   const rows = useMemo(
     () =>
@@ -84,12 +97,32 @@ export function ManagementPage({ datasetKey }: { datasetKey: string }) {
         title={dataset.title}
         description={dataset.description}
         actions={
-          <Button onClick={() => setCreateOpen(true)}>
-            <Plus className="size-4" />
-            {dataset.primaryAction}
-          </Button>
+          canCreate ? (
+            <Button onClick={() => setCreateOpen(true)}>
+              <Plus className="size-4" />
+              {dataset.primaryAction}
+            </Button>
+          ) : (
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-700">
+              <Eye className="size-3.5" />
+              View / Review Only
+            </span>
+          )
         }
       />
+
+      {!canCreate ? (
+        <div className="mb-5 flex items-center gap-3 rounded-xl border border-blue-200 bg-blue-50/70 p-4 text-xs text-blue-900">
+          <ShieldAlert className="size-5 shrink-0 text-blue-700" />
+          <div>
+            <p className="font-semibold">Super Admin Platform Oversight Mode (Read & Review Access Only)</p>
+            <p className="mt-0.5 text-blue-700">
+              Under platform governance, bank configurations ({dataset.title}) are managed directly by authorized Bank Administrators. Platform Super Admins hold supervisory read and compliance review permissions.
+            </p>
+          </div>
+        </div>
+      ) : null}
+
       <Card className="overflow-hidden">
         <SearchAndFilterBar
           query={query}
@@ -107,7 +140,7 @@ export function ManagementPage({ datasetKey }: { datasetKey: string }) {
           empty={<EmptyState />}
         />
         <div className="border-t border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-500">
-          {rows.length} configuration records · changes are local
+          {rows.length} configuration records · {!canUpdate ? "read-only oversight ledger" : "changes are local"}
         </div>
       </Card>
 
@@ -117,20 +150,36 @@ export function ManagementPage({ datasetKey }: { datasetKey: string }) {
         title={selected ? String(selected[dataset.columns[0].key]) : ""}
         description={"Configuration details · " + dataset.title}
         footer={
-          <>
-            <Button variant="outline" onClick={() => addToast("Edit mode enabled", "Fields are editable in this frontend simulation.", "info")}>
-              <Edit3 className="size-4" />
-              Edit
-            </Button>
-            <Button variant="outline" onClick={() => void updateStatus()}>
-              <Power className="size-4" />
-              {String(selected?.status) === "Disabled" ? "Enable" : "Disable"}
-            </Button>
-            <Button onClick={() => addToast("Change approved", "The simulated four-eyes approval was recorded.")}>
+          canUpdate ? (
+            <>
+              <Button variant="outline" onClick={() => addToast("Edit mode enabled", "Fields are editable in this frontend simulation.", "info")}>
+                <Edit3 className="size-4" />
+                Edit
+              </Button>
+              <Button variant="outline" onClick={() => void updateStatus()}>
+                <Power className="size-4" />
+                {String(selected?.status) === "Disabled" ? "Enable" : "Disable"}
+              </Button>
+              <Button onClick={() => addToast("Change approved", "The simulated four-eyes approval was recorded.")}>
+                <Check className="size-4" />
+                Approve
+              </Button>
+            </>
+          ) : (
+            <Button
+              variant="outline"
+              onClick={() =>
+                addToast(
+                  "Supervisory review recorded",
+                  "Compliance oversight check logged in platform audit ledger.",
+                  "info",
+                )
+              }
+            >
               <Check className="size-4" />
-              Approve
+              Log Compliance Review
             </Button>
-          </>
+          )
         }
       >
         <dl className="space-y-4">

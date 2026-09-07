@@ -35,6 +35,7 @@ export function RequestContextStep({ draft, update, errors }: StepProps) {
             "Bid/Tender Guarantee",
             "Advance Payment Guarantee",
             "Retention Guarantee",
+            "Custom Guarantee",
           ].map((type) => (
             <button
               type="button"
@@ -59,6 +60,24 @@ export function RequestContextStep({ draft, update, errors }: StepProps) {
             </button>
           ))}
         </div>
+        {draft.type === "Custom Guarantee" ? (
+          <div className="mt-4 rounded-lg border border-slate-200 bg-slate-50 p-4">
+            <p className="text-xs font-semibold text-slate-800">
+              Define the custom guarantee
+            </p>
+            <p className="mt-1 text-[11px] leading-5 text-slate-500">
+              Custom guarantees cover arrangements outside the standard catalogue
+              (e.g. customized Surety, Contract Bond, or other obligations).
+            </p>
+            <input
+              type="text"
+              value={draft.type}
+              onChange={(event) => update("type", event.target.value)}
+              placeholder="e.g. Customs Bond Guarantee"
+              className="mt-3 h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-800 outline-none focus:border-[#0f6f68]"
+            />
+          </div>
+        ) : null}
       </Field>
       <Field label="Applicant organization" required>
         <Input value={draft.applicant} disabled />

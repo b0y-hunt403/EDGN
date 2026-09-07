@@ -27,9 +27,11 @@ function useList<T>(items: T[], searchFields: (item: T) => string) {
 export function ClaimsTable({
   claims,
   emptyMessage,
+  detailPath,
 }: {
   claims: Claim[];
   emptyMessage: string;
+  detailPath?: (id: string) => string;
 }) {
   const { query, setQuery, filtered } = useList(claims, (c) =>
     [c.id, c.guaranteeReference, c.beneficiary, c.applicant, c.bank, c.reason].join(" "),
@@ -92,7 +94,11 @@ export function ClaimsTable({
           },
         ]}
         getRowKey={(c) => c.id}
-        onRowClick={() => undefined}
+        onRowClick={(c) => {
+          if (detailPath) {
+            router.push(detailPath(c.id));
+          }
+        }}
         empty={
           <EmptyState title="No claims" description={emptyMessage} />
         }

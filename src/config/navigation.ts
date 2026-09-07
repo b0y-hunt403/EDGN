@@ -1,55 +1,28 @@
 import {
-  Activity,
-  AlertTriangle,
   Archive,
   BadgeCheck,
-  Banknote,
   Bell,
-  BookOpen,
-  Boxes,
-  BriefcaseBusiness,
   Building2,
   ChartNoAxesCombined,
-  CheckCheck,
-  CircleDollarSign,
   ClipboardCheck,
   Clock3,
-  Code2,
   FileCheck2,
   FileClock,
-  FileKey2,
+  FileSignature,
   FileSearch,
-  FileText,
   Fingerprint,
-  Flag,
-  Gauge,
-  Gavel,
   GitBranch,
-  History,
-  House,
-  KeyRound,
   Landmark,
   LayoutDashboard,
-  ListChecks,
   MessagesSquare,
   Network,
-  NotebookTabs,
-  PackageCheck,
   PlugZap,
-  QrCode,
   ReceiptText,
-  Scale,
   ScrollText,
-  Settings2,
-  ShieldAlert,
   ShieldCheck,
-  SlidersHorizontal,
-  SquareCode,
-  Stamp,
   UserRoundCog,
   Users,
   Webhook,
-  Workflow,
 } from "lucide-react";
 import type { DemoRoleId, NavSection } from "@/types";
 
@@ -108,35 +81,20 @@ export const navigation: Record<DemoRoleId, NavSection[]> = {
       items: [
         { label: "Dashboard", href: "/beneficiary", icon: LayoutDashboard },
         {
-          label: "Received guarantees",
+          label: "My Guarantees",
           href: "/beneficiary/guarantees",
           icon: ShieldCheck,
         },
         {
-          label: "Verify guarantee",
-          href: "/beneficiary/verification",
-          icon: QrCode,
+          label: "Claims",
+          href: "/beneficiary/claims",
+          icon: ReceiptText,
         },
         {
-          label: "Expiring",
-          href: "/beneficiary/expiring",
-          icon: FileClock,
-          badge: "4",
+          label: "Documents",
+          href: "/beneficiary/documents",
+          icon: Archive,
         },
-      ],
-    },
-    {
-      label: "Actions",
-      items: [
-        {
-          label: "Extension requests",
-          href: "/beneficiary/extensions",
-          icon: Clock3,
-        },
-        { label: "Claims", href: "/beneficiary/claims", icon: ReceiptText },
-        { label: "Release requests", href: "/beneficiary/releases", icon: CheckCheck },
-        { label: "Disputes", href: "/beneficiary/disputes", icon: MessagesSquare },
-        { label: "Evidence", href: "/beneficiary/evidence", icon: FileKey2 },
       ],
     },
     {
@@ -152,178 +110,133 @@ export const navigation: Record<DemoRoleId, NavSection[]> = {
       ],
     },
   ],
-  "bank-maker": [
+  "bank-admin": [
     {
-      label: "Operations",
+      label: "Overview",
       items: [
         { label: "Dashboard", href: "/bank", icon: LayoutDashboard },
-        {
-          label: "Work queue",
-          href: "/bank/work-queue",
-          icon: ListChecks,
-          badge: "17",
-        },
-        { label: "Registry", href: "/bank/registry", icon: Archive },
-        { label: "Collateral", href: "/bank/collateral", icon: CircleDollarSign },
       ],
     },
     {
-      label: "Lifecycle",
+      label: "Guarantee Management",
       items: [
-        { label: "Claims", href: "/bank/claims", icon: ReceiptText },
-        { label: "Disputes", href: "/bank/disputes", icon: MessagesSquare },
-        { label: "Court instructions", href: "/bank/instructions", icon: Gavel },
+        { label: "All Guarantees", href: "/bank/admin/guarantees", icon: ShieldCheck },
+        { label: "Pending Actions", href: "/bank/admin/pending", icon: ClipboardCheck },
+        { label: "Guarantee Monitoring", href: "/bank/admin/monitoring", icon: ChartNoAxesCombined },
       ],
     },
     {
-      label: "Oversight",
+      label: "Claims",
       items: [
-        { label: "Operational alerts", href: "/bank/alerts", icon: AlertTriangle },
+        { label: "All Claims", href: "/bank/claims", icon: ReceiptText },
+        { label: "Claim Monitoring", href: "/bank/admin/claim-monitoring", icon: FileSearch },
+      ],
+    },
+    {
+      label: "User Management",
+      items: [
+        { label: "Users", href: "/bank/admin/users", icon: Users },
+        { label: "Roles", href: "/bank/admin/roles", icon: UserRoundCog },
+        { label: "Permissions", href: "/bank/admin/permissions", icon: ShieldCheck },
+      ],
+    },
+    {
+      label: "Bank Configuration",
+      items: [
+        { label: "Bank Branches", href: "/bank/admin/branches", icon: Network },
+        { label: "Approval Matrix", href: "/bank/admin/approval-matrix", icon: GitBranch },
+        { label: "SLA Rules", href: "/bank/admin/sla", icon: Clock3 },
+      ],
+    },
+    {
+      label: "Account",
+      items: [
         { label: "Reports", href: "/bank/reports", icon: ChartNoAxesCombined },
+        { label: "Notifications", href: "/bank/notifications", icon: Bell, badge: "3" },
+        { label: "Profile", href: "/bank/profile", icon: Building2 },
+      ],
+    },
+  ],
+  "bank-maker": [
+    {
+      label: "Workspace",
+      items: [
+        { label: "Dashboard", href: "/bank", icon: LayoutDashboard },
+        { label: "My Guarantees", href: "/bank/my-guarantees", icon: ShieldCheck },
+        { label: "Create Guarantee", href: "/bank/create", icon: FileCheck2 },
+        { label: "Drafts", href: "/bank/drafts", icon: FileClock },
+      ],
+    },
+    {
+      label: "Account",
+      items: [
+        { label: "Notifications", href: "/bank/notifications", icon: Bell, badge: "3" },
+        { label: "Profile", href: "/bank/profile", icon: Building2 },
       ],
     },
   ],
   "bank-checker": [
     {
-      label: "Approval desk",
+      label: "Review Desk",
       items: [
         { label: "Dashboard", href: "/bank", icon: LayoutDashboard },
-        {
-          label: "Approval queue",
-          href: "/bank/approvals",
-          icon: ClipboardCheck,
-          badge: "8",
-        },
-        { label: "Registry", href: "/bank/registry", icon: Archive },
-        { label: "Exposure", href: "/bank/exposure", icon: ChartNoAxesCombined },
+        { label: "Pending Reviews", href: "/bank/pending-reviews", icon: ClipboardCheck },
+        { label: "Guarantees", href: "/bank/registry", icon: ShieldCheck },
       ],
     },
     {
-      label: "Decisions",
+      label: "Account",
       items: [
-        { label: "Claims", href: "/bank/claims", icon: ReceiptText },
-        { label: "Disputes", href: "/bank/disputes", icon: MessagesSquare },
-        { label: "Reports", href: "/bank/reports", icon: FileText },
+        { label: "Notifications", href: "/bank/notifications", icon: Bell, badge: "3" },
+        { label: "Profile", href: "/bank/profile", icon: Building2 },
       ],
     },
   ],
-  "bank-signatory": [
+  "bank-approver": [
     {
-      label: "Authorization",
+      label: "Approval Desk",
       items: [
         { label: "Dashboard", href: "/bank", icon: LayoutDashboard },
-        {
-          label: "Signature queue",
-          href: "/bank/signatures",
-          icon: Stamp,
-          badge: "5",
-        },
-        { label: "Issued guarantees", href: "/bank/registry", icon: BadgeCheck },
-        { label: "Approval history", href: "/bank/history", icon: History },
+        { label: "Pending Approvals", href: "/bank/pending-approvals", icon: BadgeCheck },
+        { label: "Digital Signatures", href: "/bank/signatures", icon: FileSignature },
+        { label: "Guarantees", href: "/bank/registry", icon: ShieldCheck },
       ],
     },
     {
-      label: "Authority",
+      label: "Account",
       items: [
-        { label: "Claims", href: "/bank/claims", icon: ReceiptText },
-        { label: "Court instructions", href: "/bank/instructions", icon: Gavel },
-        { label: "Reports", href: "/bank/reports", icon: ChartNoAxesCombined },
+        { label: "Notifications", href: "/bank/notifications", icon: Bell, badge: "3" },
+        { label: "Profile", href: "/bank/profile", icon: Building2 },
       ],
     },
   ],
-  admin: [
+  "super-admin": [
     {
       label: "Platform",
       items: [
         { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
         { label: "Organizations", href: "/admin/organizations", icon: Building2 },
         { label: "Users", href: "/admin/users", icon: Users },
-        { label: "Roles & permissions", href: "/admin/roles", icon: UserRoundCog },
         { label: "Banks", href: "/admin/banks", icon: Landmark },
-        { label: "Bank branches", href: "/admin/branches", icon: Network },
+        { label: "Guarantees", href: "/admin/guarantees", icon: ShieldCheck },
+        { label: "Claims", href: "/admin/claims", icon: ReceiptText },
       ],
     },
     {
-      label: "Configuration",
+      label: "Bank Configuration",
       items: [
-        {
-          label: "Guarantee types",
-          href: "/admin/guarantee-types",
-          icon: Boxes,
-        },
-        { label: "Templates", href: "/admin/templates", icon: NotebookTabs },
-        { label: "Rules", href: "/admin/rules", icon: Workflow },
-        { label: "Approval matrices", href: "/admin/approvals", icon: GitBranch },
-        { label: "SLA rules", href: "/admin/sla", icon: Clock3 },
-        {
-          label: "Notification templates",
-          href: "/admin/notifications",
-          icon: Bell,
-        },
+        { label: "Bank Branches", href: "/admin/branches", icon: Network, permission: "read", badge: "View/Review" },
+        { label: "Approval Matrix", href: "/admin/approvals", icon: GitBranch, permission: "read", badge: "View/Review" },
+        { label: "SLA Rules", href: "/admin/sla", icon: Clock3, permission: "read", badge: "View/Review" },
       ],
     },
     {
-      label: "Operations & risk",
+      label: "Oversight",
       items: [
-        { label: "Fraud alerts", href: "/admin/fraud", icon: ShieldAlert },
         { label: "Integrations", href: "/admin/integrations", icon: PlugZap },
         { label: "Webhook deliveries", href: "/admin/webhooks", icon: Webhook },
-        { label: "API clients", href: "/admin/api-clients", icon: KeyRound },
-        { label: "Feature flags", href: "/admin/feature-flags", icon: Flag },
         { label: "Audit logs", href: "/admin/audit", icon: ScrollText },
         { label: "Reports", href: "/admin/reports", icon: ChartNoAxesCombined },
-      ],
-    },
-  ],
-  court: [
-    {
-      label: "Judicial workspace",
-      items: [
-        { label: "Dashboard", href: "/court", icon: Scale },
-        {
-          label: "Case queue",
-          href: "/court/cases",
-          icon: BriefcaseBusiness,
-          badge: "6",
-        },
-        { label: "Evidence review", href: "/court/evidence", icon: FileSearch },
-        {
-          label: "Information requests",
-          href: "/court/information-requests",
-          icon: MessagesSquare,
-        },
-        { label: "Hearings", href: "/court/hearings", icon: Clock3 },
-      ],
-    },
-    {
-      label: "Judicial records",
-      items: [
-        { label: "Orders & decisions", href: "/court/decisions", icon: Gavel },
-        { label: "Appeals", href: "/court/appeals", icon: GitBranch },
-        { label: "Bank instructions", href: "/court/instructions", icon: Banknote },
-        { label: "Execution tracking", href: "/court/execution", icon: PackageCheck },
-        { label: "Closed cases", href: "/court/closed", icon: Archive },
-      ],
-    },
-  ],
-  developer: [
-    {
-      label: "Developer portal",
-      items: [
-        { label: "Overview", href: "/developer", icon: House },
-        { label: "API clients", href: "/developer/clients", icon: KeyRound },
-        { label: "Sandbox", href: "/developer/sandbox", icon: SquareCode },
-        { label: "Usage & limits", href: "/developer/usage", icon: Gauge },
-        { label: "Webhooks", href: "/developer/webhooks", icon: Webhook },
-      ],
-    },
-    {
-      label: "Build",
-      items: [
-        { label: "API documentation", href: "/developer/docs", icon: BookOpen },
-        { label: "Endpoint explorer", href: "/developer/explorer", icon: Code2 },
-        { label: "Authentication", href: "/developer/authentication", icon: KeyRound },
-        { label: "Changelog", href: "/developer/changelog", icon: Activity },
       ],
     },
   ],

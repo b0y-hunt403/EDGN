@@ -114,6 +114,7 @@ export const guarantees: Guarantee[] = [
     status: "ACTIVE",
     version: 2,
     publicVisibleAmount: true,
+    signatureStatus: "SIGNED",
     documents: standardDocuments,
     versions: [
       {
@@ -154,6 +155,7 @@ export const guarantees: Guarantee[] = [
     status: "PENDING_APPROVAL",
     version: 0,
     publicVisibleAmount: false,
+    signatureStatus: "PENDING",
     documents: standardDocuments.slice(1),
     versions: [],
     timeline: compactTimeline("004870", "PENDING_APPROVAL"),

@@ -40,9 +40,19 @@ function generateReference(): string {
 }
 
 function roleIdToPortal(roleId: DemoRoleId): PortalId {
-  if (roleId === "bank-maker" || roleId === "bank-checker" || roleId === "bank-signatory")
-    return "bank";
-  return roleId as PortalId;
+  switch (roleId) {
+    case "bank-admin":
+    case "bank-maker":
+    case "bank-checker":
+    case "bank-approver":
+      return "bank";
+    case "super-admin":
+      return "admin";
+    case "applicant":
+      return "applicant";
+    case "beneficiary":
+      return "beneficiary";
+  }
 }
 
 function mapDemoUserToUser(roleId: DemoRoleId): User {

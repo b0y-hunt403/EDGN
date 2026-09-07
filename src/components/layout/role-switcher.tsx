@@ -64,11 +64,11 @@ export function RoleSwitcher() {
               <div className="flex items-center gap-2">
                 <UsersRound className="size-4 text-[#0f6f68]" />
                 <p className="text-sm font-semibold text-slate-900">
-                  Switch demo perspective
+                  Demo Role Switcher
                 </p>
               </div>
               <p className="mt-1 text-xs leading-5 text-slate-500">
-                Navigation and available actions change. Workflow state remains connected.
+                Switch between demonstration perspectives. Role navigation, permissions, and actions update immediately.
               </p>
             </div>
             <div className="max-h-[460px] overflow-y-auto p-2">

@@ -240,7 +240,7 @@ export const applications: Application[] = [
     tenderValue: 73500000,
     effectiveDate: "04 Sep 2026",
     expiryDate: "03 Sep 2027",
-    status: "PENDING_SIGNATURE",
+    status: "PENDING_APPROVER",
     priority: "High",
     sla: "00h 48m remaining",
     assignee: "Marta Kebede",

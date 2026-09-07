@@ -15,10 +15,8 @@ import { LoadingState } from "@/components/shared/states";
 const PORTAL_ROLES: Record<string, string[]> = {
   applicant: ["applicant"],
   beneficiary: ["beneficiary"],
-  bank: ["bank-maker", "bank-checker", "bank-signatory"],
-  admin: ["admin"],
-  court: ["court"],
-  developer: ["developer"],
+  bank: ["bank-admin", "bank-maker", "bank-checker", "bank-approver"],
+  admin: ["super-admin"],
 };
 
 export function RoleGuard({ children }: { children: ReactNode }) {

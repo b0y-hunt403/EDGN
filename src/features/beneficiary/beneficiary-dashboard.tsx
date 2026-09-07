@@ -11,7 +11,6 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { buttonStyles } from "@/components/ui/button";
 import { StatCard } from "@/components/shared/stat-card";
 import { DataTable, type DataColumn } from "@/components/shared/data-table";
 import { StatusBadge } from "@/components/ui/status-badge";
@@ -69,13 +68,7 @@ export function BeneficiaryDashboard() {
       <PageHeader
         eyebrow="Beneficiary workspace"
         title="Guarantees received by AACRA"
-        description="Verify authenticity, monitor coverage, and manage claims and release actions."
-        actions={
-          <Link href="/beneficiary/verification" className={buttonStyles("primary")}>
-            <QrCode className="size-4" />
-            Verify guarantee
-          </Link>
-        }
+        description="Monitor coverage, and manage claims and release actions."
       />
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard

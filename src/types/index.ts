@@ -1,22 +1,19 @@
 import type { LucideIcon } from "lucide-react";
 
 export type DemoRoleId =
-  | "applicant"
-  | "beneficiary"
+  | "super-admin"
+  | "bank-admin"
   | "bank-maker"
   | "bank-checker"
-  | "bank-signatory"
-  | "admin"
-  | "court"
-  | "developer";
+  | "bank-approver"
+  | "applicant"
+  | "beneficiary";
 
 export type PortalId =
-  | "applicant"
-  | "beneficiary"
-  | "bank"
   | "admin"
-  | "court"
-  | "developer";
+  | "bank"
+  | "applicant"
+  | "beneficiary";
 
 export type Language = "en" | "am";
 
@@ -26,10 +23,13 @@ export type ApplicationStatus =
   | "UNDER_REVIEW"
   | "MORE_INFORMATION_REQUIRED"
   | "PENDING_CHECKER"
+  | "PENDING_APPROVER"
   | "APPROVED"
   | "PENDING_SIGNATURE"
+  | "SIGNED"
   | "ISSUED"
-  | "REJECTED";
+  | "REJECTED"
+  | "RETURNED";
 
 export type GuaranteeStatus =
   | "ACTIVE"
@@ -39,15 +39,18 @@ export type GuaranteeStatus =
   | "CLAIM_PENDING"
   | "DISPUTED"
   | "RELEASED"
-  | "EXPIRED";
+  | "EXPIRED"
+  | "PENDING_SIGNATURE"
+  | "DRAFT";
 
 export type ClaimStatus =
   | "SUBMITTED"
   | "UNDER_REVIEW"
+  | "DOCUMENT_VERIFICATION"
   | "APPROVED"
   | "REJECTED"
   | "PAYMENT_PENDING"
-  | "PAID";
+  | "SETTLED";
 
 export type DisputeStatus =
   | "EVIDENCE_COLLECTION"
@@ -55,6 +58,15 @@ export type DisputeStatus =
   | "INTERNAL_REVIEW"
   | "COURT_REFERRED"
   | "RESOLVED";
+
+export type SignatureStatus =
+  | "PENDING"
+  | "REQUESTED"
+  | "SIGNED"
+  | "REJECTED"
+  | "EXPIRED";
+
+export type BankUserRole = "maker" | "checker" | "approver" | "admin";
 
 export interface DemoUser {
   id: string;
@@ -88,6 +100,141 @@ export interface Bank {
   integrationStatus: "Healthy" | "Degraded" | "Maintenance";
   responseTime: string;
   logoTone: string;
+}
+
+export interface BankBranch {
+  id: string;
+  bankId: string;
+  name: string;
+  code: string;
+  region: string;
+  city: string;
+  manager: string;
+  phone: string;
+  status: "Active" | "Inactive" | "Under review";
+}
+
+export interface BankUser {
+  id: string;
+  fullName: string;
+  email: string;
+  role: BankUserRole;
+  bankId: string;
+  branchId?: string;
+  phone: string;
+  status: "ACTIVE" | "INACTIVE";
+  lastLogin: string;
+  createdAt: string;
+}
+
+export interface BankRole {
+  id: string;
+  name: string;
+  description: string;
+  permissions: string[];
+  userCount: number;
+}
+
+export interface ApprovalMatrix {
+  id: string;
+  bankId: string;
+  guaranteeType: string;
+  minAmount: number;
+  maxAmount: number;
+  requiredApprovers: number;
+  makerRole: string;
+  checkerRole: string;
+  approverRole: string;
+  status: "Active" | "Inactive";
+}
+
+export interface SlaRule {
+  id: string;
+  bankId: string;
+  name: string;
+  description: string;
+  stage: string;
+  targetHours: number;
+  escalationHours: number;
+  notifyRoles: string[];
+  status: "Active" | "Inactive";
+}
+
+export type FeeCalculationMode =
+  | "Fixed"
+  | "Percentage"
+  | "Amount-based"
+  | "Product-based";
+
+export interface FeeRule {
+  id: string;
+  bankId: string;
+  name: string;
+  description: string;
+  feeType:
+    | "Application"
+    | "Issuance"
+    | "Amendment"
+    | "Extension"
+    | "Cancellation"
+    | "Claim";
+  calculation: FeeCalculationMode;
+  value: number;
+  currency: "ETB";
+  applicableTypes: string[];
+  status: "Active" | "Inactive";
+}
+
+export interface ExposureProfile {
+  id: string;
+  bankId: string;
+  customer: string;
+  customerTin: string;
+  facilityLimit: number;
+  currency: "ETB";
+  utilizationRatio: number;
+  status: "Normal" | "Warning" | "Blocked";
+  updated: string;
+}
+
+export interface UserInvitation {
+  id: string;
+  bankId: string;
+  fullName: string;
+  email: string;
+  phone: string;
+  role: BankUserRole;
+  branchId?: string;
+  status:
+    | "INVITED"
+    | "ACCEPTED"
+    | "VERIFIED"
+    | "PASSWORD_SET"
+    | "MFA_ENROLLED"
+    | "ACTIVE"
+    | "EXPIRED";
+  invitedAt: string;
+  activatedAt?: string;
+  token: string;
+}
+
+export interface DigitalSignature {
+  id: string;
+  documentId: string;
+  documentName: string;
+  documentType: "Guarantee" | "Application" | "Claim" | "Amendment";
+  guaranteeReference?: string;
+  signerName: string;
+  signerRole: string;
+  signerId: string;
+  bankId: string;
+  certificateIssuer: string;
+  certificateStatus: "Valid" | "Expired" | "Revoked";
+  signatureTimestamp: string | null;
+  status: SignatureStatus;
+  rejectionReason?: string;
+  hash: string;
+  createdAt: string;
 }
 
 export interface TimelineEvent {
@@ -137,6 +284,7 @@ export interface Guarantee {
   status: GuaranteeStatus;
   version: number;
   publicVisibleAmount: boolean;
+  signatureStatus?: SignatureStatus;
   documents: DocumentRecord[];
   versions: GuaranteeVersion[];
   timeline: TimelineEvent[];
@@ -177,16 +325,22 @@ export interface Application {
 
 export interface Claim {
   id: string;
+  reference: string;
   guaranteeReference: string;
   beneficiary: string;
+  beneficiaryId: string;
   applicant: string;
+  bank: string;
+  bankId: string;
   amount: number;
   currency: "ETB";
   reason: string;
   submittedDate: string;
   status: ClaimStatus;
-  bank: string;
+  assignedOfficer: string;
   dueDate: string;
+  documents: DocumentRecord[];
+  timeline: TimelineEvent[];
 }
 
 export interface Dispute {
@@ -315,6 +469,7 @@ export interface NavItem {
   href: string;
   icon: LucideIcon;
   badge?: string;
+  permission?: string;
 }
 
 export interface NavSection {

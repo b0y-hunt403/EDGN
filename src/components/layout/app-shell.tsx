@@ -23,14 +23,10 @@ export function AppShell({ children }: { children: ReactNode }) {
       portal === "beneficiary"
         ? "beneficiary"
         : portal === "admin"
-          ? "admin"
-          : portal === "court"
-            ? "court"
-            : portal === "developer"
-              ? "developer"
-              : portal === "applicant"
-                ? "applicant"
-                : null;
+          ? "super-admin"
+          : portal === "applicant"
+            ? "applicant"
+            : null;
     if (expected && role !== expected) setRole(expected);
     if (portal === "bank" && !role.startsWith("bank-")) setRole("bank-maker");
   }, [pathname, role, setRole]);

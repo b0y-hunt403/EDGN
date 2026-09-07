@@ -72,10 +72,11 @@ src/
 ├── features/             # Feature modules per portal
 │   ├── applicant/        #   Applicant portal
 │   ├── beneficiary/      #   Beneficiary portal
-│   ├── bank/             #   Bank portal (Maker / Checker / Signatory)
-│   ├── admin/            #   EDGN Administration portal
-│   ├── court/            #   Court Officer portal
-│   ├── developer/        #   API Developer portal
+│   ├── bank/             #   Bank portal (Maker / Checker / Approver)
+│   ├── bank-admin/       #   Bank Admin configuration (users, branches, matrix, SLA)
+│   ├── signatures/       #   Digital signature workflow
+│   ├── claims/           #   Claims working queue & detail
+│   ├── admin/            #   EDGN Super Admin oversight portal
 │   ├── verification/     #   Public guarantee verification
 │   ├── auth/             #   Login, Signup, Forgot Password, Unauthorized
 │   ├── guarantees/       #   Shared guarantee list & detail views
@@ -96,18 +97,20 @@ The app uses a **mock authentication layer** for presentation purposes.
 
 ### Demo Accounts
 
-Click **Demo Accounts** on the login page to auto-fill credentials.
+Enter the credentials in the email and password fields on the login page (`/login`).
 
-| Role               | Email                           |
-| ------------------ | ------------------------------- |
-| Applicant          | `demo.applicant@edgn.gov.et`   |
-| Beneficiary        | `demo.beneficiary@edgn.gov.et` |
-| Bank Maker         | `demo.maker@bank.edgn.gov.et`  |
-| Bank Checker       | `demo.checker@bank.edgn.gov.et`|
-| Bank Signatory     | `demo.signatory@bank.edgn.gov.et`|
-| EDGN Administrator | `demo.admin@edgn.gov.et`       |
-| Court Officer      | `demo.court@edgn.gov.et`       |
-| API Developer      | `demo.developer@edgn.gov.et`   |
+| Role | Email | Organization / Perspective |
+| :--- | :--- | :--- |
+| **Applicant** | `demo.applicant@edgn.gov.et` | Meskel Construction PLC |
+| **Beneficiary** | `demo.beneficiary@edgn.gov.et` | Addis Ababa City Roads Authority (AACRA) |
+| **Bank Admin** | `demo.bankadmin@bank.edgn.gov.et` | Commercial Bank of Ethiopia (Admin Desk) |
+| **Bank Maker** | `demo.maker@bank.edgn.gov.et` | Commercial Bank of Ethiopia (Guarantee Operations) |
+| **Bank Checker** | `demo.checker@bank.edgn.gov.et` | Commercial Bank of Ethiopia (Credit Review Desk) |
+| **Bank Approver** | `demo.approver@bank.edgn.gov.et` | Commercial Bank of Ethiopia (Approval Desk) |
+| **Bank Signatory** *(Alias)* | `demo.signatory@bank.edgn.gov.et` | Commercial Bank of Ethiopia (Signing Authority) |
+| **EDGN Administrator** *(Super Admin)* | `demo.admin@edgn.gov.et` | EDGN Authority |
+| **Court Officer** | `demo.court@edgn.gov.et` | Federal First Instance Court |
+| **API Developer** | `demo.developer@edgn.gov.et` | TechPartner Integrations |
 
 **Password for all demo accounts:** `Demo@123`
 
@@ -121,7 +124,7 @@ Click **Demo Accounts** on the login page to auto-fill credentials.
 | `/unauthorized`    | Access denied                        |
 | `/verify`          | Public guarantee verification        |
 
-After login, users are redirected to their role-specific dashboard (e.g. `/applicant`, `/bank/work-queue`, `/admin`).
+After login, users are redirected to their role-specific dashboard (e.g. `/applicant`, `/bank`, `/admin`).
 
 ### Quick Role Switching
 
@@ -135,10 +138,26 @@ Once logged in, use the **Role Switcher** in the top-right corner to instantly s
 | ------------ | ------------ | --------------------------------------------- |
 | Applicant    | `/applicant` | Request and manage guarantees                 |
 | Beneficiary  | `/beneficiary`| Receive, verify, and claim guarantees        |
-| Bank         | `/bank`      | Process, approve, and issue guarantees        |
-| Admin        | `/admin`     | Platform configuration and management         |
-| Court        | `/court`     | Judicial case management                      |
-| Developer    | `/developer` | API integration and sandbox                   |
+| Bank         | `/bank`      | Maker / Checker / Approver guarantees workflow|
+| Admin        | `/admin`     | Super Admin platform oversight                |
+
+---
+
+## Role-Based Navigation
+
+Navigation sections are configured per role in `src/config/navigation.ts`:
+
+| Role           | Primary sections                                                     |
+| -------------- | -------------------------------------------------------------------- |
+| Super Admin    | Platform, Bank Configuration (read-only), Oversight                  |
+| Bank Admin     | Guarantee Management, Claims, User Management, Bank Configuration    |
+| Bank Maker     | Workspace (My Guarantees, Create, Drafts)                            |
+| Bank Checker   | Review Desk (Pending Reviews, Registry)                              |
+| Bank Approver  | Approval Desk (Pending Approvals, Digital Signatures, Registry)      |
+| Applicant      | Workspace, Lifecycle, Account                                        |
+| Beneficiary    | Workspace (My Guarantees, Claims, Documents), Account                |
+
+Permissions are centralized in `src/config/permissions.ts` and enforced via `hasPermission`.
 
 ---
 
@@ -158,8 +177,9 @@ The mock data supports an end-to-end presentation workflow:
 3. Switch to Bank Checker
    → Approve Application
 
-4. Switch to Bank Signatory
-   → Sign and Issue Guarantee
+4. Switch to Bank Approver
+   → Approve, then Sign and Issue the Guarantee
+   → Digital signature recorded in the signature ledger
 
 5. Switch to Beneficiary
    → View Issued Guarantee

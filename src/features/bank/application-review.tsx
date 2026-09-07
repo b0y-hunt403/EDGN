@@ -225,10 +225,10 @@ export function ApplicationReview({
               onClick={() =>
                 mode === "maker"
                   ? switchRoleAndContinue("bank-checker", "/bank/approvals")
-                  : switchRoleAndContinue("bank-signatory", "/bank/signatures")
+                  : switchRoleAndContinue("bank-approver", "/bank/signatures")
               }
             >
-              Continue as {mode === "maker" ? "Bank Checker" : "Bank Signatory"}
+              Continue as {mode === "maker" ? "Bank Checker" : "Bank Approver"}
               <ArrowRight className="size-4" />
             </Button>
           </CardContent>

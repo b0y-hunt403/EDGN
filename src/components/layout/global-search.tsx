@@ -47,10 +47,7 @@ export function GlobalSearch() {
 
   const portal = currentUser.portal;
   const openGuarantee = (id: string) => {
-    const safePortal =
-      portal === "admin" || portal === "developer" || portal === "court"
-        ? "admin"
-        : portal;
+    const safePortal = portal === "admin" ? "admin" : portal;
     setOpen(false);
     router.push("/" + safePortal + "/guarantees/" + id);
   };

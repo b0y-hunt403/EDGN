@@ -17,7 +17,7 @@ import type { Application } from "@/types";
 export function WorkQueue({
   queueType,
 }: {
-  queueType: "maker" | "checker" | "signatory";
+  queueType: "maker" | "checker" | "approver" | "signatory";
 }) {
   const { applications, addToast } = useDemo();
   const [query, setQuery] = useState("");
@@ -29,7 +29,9 @@ export function WorkQueue({
       ? ["SUBMITTED", "UNDER_REVIEW", "MORE_INFORMATION_REQUIRED"]
       : queueType === "checker"
         ? ["PENDING_CHECKER"]
-        : ["APPROVED", "PENDING_SIGNATURE"];
+        : queueType === "approver"
+          ? ["PENDING_APPROVER"]
+          : ["APPROVED", "PENDING_SIGNATURE"];
   const rows = useMemo(() => {
     const needle = query.toLowerCase();
     const filtered = applications.filter(
@@ -118,6 +120,12 @@ export function WorkQueue({
       title: "Checker approval queue",
       description: "Maker-prepared records awaiting independent approval.",
       action: "checker",
+    },
+    approver: {
+      eyebrow: "Authorized issuance",
+      title: "Approver authorization queue",
+      description: "Checked records awaiting senior approval before authorized signature.",
+      action: "sign",
     },
     signatory: {
       eyebrow: "Authorized issuance",

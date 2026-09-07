@@ -11,15 +11,18 @@ import {
   ExternalLink,
   FilePenLine,
   FilePlus2,
+  FileSignature,
   LockKeyhole,
   QrCode,
   ShieldCheck,
   Stamp,
-  XCircle,
+  View,
 } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button, buttonStyles } from "@/components/ui/button";
 import { StatusBadge } from "@/components/ui/status-badge";
+import { Modal } from "@/components/ui/modal";
+import { Checkbox } from "@/components/ui/form-controls";
 import { PageHeader } from "@/components/shared/page-header";
 import { DetailGrid } from "@/components/shared/detail-grid";
 import { Timeline } from "@/components/shared/timeline";
@@ -27,6 +30,7 @@ import { DocumentCard } from "@/components/shared/document-card";
 import { EmptyState } from "@/components/shared/states";
 import { QrMark } from "@/components/shared/qr-mark";
 import { LifecycleDialog } from "@/features/guarantees/lifecycle-dialog";
+import { GuaranteeCertificate } from "@/components/guarantee/certificate";
 import { useDemo } from "@/store/demo-store";
 import { cn, formatMoney } from "@/lib/utils";
 import type { PortalId } from "@/types";
@@ -45,9 +49,12 @@ export function GuaranteeDetail({
   portal: PortalId;
   guaranteeId: string;
 }) {
-  const { guarantees, addToast } = useDemo();
+  const { guarantees, addToast, signGuaranteeAsApplicant } = useDemo();
   const [tab, setTab] = useState<DetailTab>("overview");
   const [dialog, setDialog] = useState<LifecycleKind | null>(null);
+  const [signing, setSigning] = useState(false);
+  const [signConfirmed, setSignConfirmed] = useState(false);
+  const [showingCertificate, setShowingCertificate] = useState(false);
   const router = useRouter();
   const guarantee = guarantees.find(
     (item) =>
@@ -73,8 +80,7 @@ export function GuaranteeDetail({
     );
   }
 
-  const listPortal =
-    portal === "developer" || portal === "court" ? "admin" : portal;
+  const listPortal = portal === "admin" ? "admin" : portal;
   const tabs: { id: DetailTab; label: string }[] = [
     { id: "overview", label: "Overview" },
     { id: "activity", label: "Activity & audit" },
@@ -116,6 +122,13 @@ export function GuaranteeDetail({
         actions={
           <>
             <StatusBadge status={guarantee.status} />
+            <Button
+              variant="outline"
+              onClick={() => setShowingCertificate(true)}
+            >
+              <View className="size-4" />
+              View certificate
+            </Button>
             <Button
               variant="outline"
               onClick={() =>
@@ -235,6 +248,72 @@ export function GuaranteeDetail({
                     </div>
                   </div>
                 </CardContent>
+                <CardContent className="border-t border-slate-100 p-5 sm:p-6">
+                  <h3 className="text-sm font-semibold text-slate-900">
+                    Approval & Governance History
+                  </h3>
+                  <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                    <div className="rounded-lg border border-slate-200 bg-slate-50/70 p-3.5">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                          1. Maker Action
+                        </span>
+                        <span className="rounded bg-emerald-50 px-1.5 py-0.5 text-[10px] font-bold text-emerald-700">
+                          Prepared
+                        </span>
+                      </div>
+                      <p className="mt-2 text-xs font-semibold text-slate-800">
+                        Yonas Bekele
+                      </p>
+                      <p className="text-[11px] text-slate-500">
+                        Guarantee Officer · Maker
+                      </p>
+                      <p className="mt-2 text-[10px] text-slate-400">
+                        {guarantee.issueDate}, 09:30 EAT
+                      </p>
+                    </div>
+
+                    <div className="rounded-lg border border-slate-200 bg-slate-50/70 p-3.5">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                          2. Checker Review
+                        </span>
+                        <span className="rounded bg-emerald-50 px-1.5 py-0.5 text-[10px] font-bold text-emerald-700">
+                          Validated
+                        </span>
+                      </div>
+                      <p className="mt-2 text-xs font-semibold text-slate-800">
+                        Rahel Desta
+                      </p>
+                      <p className="text-[11px] text-slate-500">
+                        Credit Reviewer · Checker
+                      </p>
+                      <p className="mt-2 text-[10px] text-slate-400">
+                        {guarantee.issueDate}, 11:15 EAT
+                      </p>
+                    </div>
+
+                    <div className="rounded-lg border border-slate-200 bg-slate-50/70 p-3.5">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                          3. Approver Authorization
+                        </span>
+                        <span className="rounded bg-emerald-50 px-1.5 py-0.5 text-[10px] font-bold text-emerald-700">
+                          Approved
+                        </span>
+                      </div>
+                      <p className="mt-2 text-xs font-semibold text-slate-800">
+                        Dawit Haile
+                      </p>
+                      <p className="text-[11px] text-slate-500">
+                        Branch Manager · Approver
+                      </p>
+                      <p className="mt-2 text-[10px] text-slate-400">
+                        {guarantee.issueDate}, 14:40 EAT
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
               </>
             ) : null}
 
@@ -322,6 +401,28 @@ export function GuaranteeDetail({
             </CardContent>
           </Card>
 
+          {portal === "applicant" ? (
+            <Card>
+              <CardHeader title="Applicant authorization" />
+              <CardContent className="space-y-2 p-3">
+                <Button
+                  variant="primary"
+                  className="w-full justify-start"
+                  onClick={() => {
+                    setSigning(true);
+                    setSignConfirmed(false);
+                  }}
+                >
+                  <FileSignature className="size-4" />
+                  Sign as applicant
+                </Button>
+                <p className="px-1 text-[11px] leading-4 text-slate-500">
+                  Review and attest this guarantee with a PKI-style confirm signature.
+                </p>
+              </CardContent>
+            </Card>
+          ) : null}
+
           {permittedActions.length > 0 ? (
             <Card>
               <CardHeader title="Available actions" />
@@ -390,6 +491,117 @@ export function GuaranteeDetail({
           onClose={() => setDialog(null)}
         />
       ) : null}
+
+      <Modal
+        open={signing}
+        onClose={() => {
+          setSigning(false);
+          setSignConfirmed(false);
+        }}
+        title="Confirm and sign as applicant"
+        description={
+          "PKI-style attestation for " +
+          guarantee.reference +
+          " · " +
+          guarantee.type +
+          "."
+        }
+        size="lg"
+        footer={
+          <>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setSigning(false);
+                setSignConfirmed(false);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              disabled={!signConfirmed}
+              onClick={async () => {
+                await signGuaranteeAsApplicant(guarantee.id);
+                setSigning(false);
+                setSignConfirmed(false);
+              }}
+            >
+              <FileSignature className="size-4" />
+              Confirm signature
+            </Button>
+          </>
+        }
+      >
+        <div className="space-y-5">
+          <div className="rounded-lg border border-slate-200 p-4">
+            <div className="flex items-center gap-3">
+              <div className="flex size-10 items-center justify-center rounded-lg bg-[#0f6f68]/10 text-[#0f6f68]">
+                <FileSignature className="size-5" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-slate-900">
+                  {guarantee.reference}
+                </p>
+                <p className="mt-0.5 text-xs text-slate-500">
+                  {guarantee.applicant} · {guarantee.type}
+                </p>
+              </div>
+              <StatusBadge status={guarantee.status} className="ml-auto" />
+            </div>
+          </div>
+          <div className="grid gap-x-8 gap-y-4 rounded-lg border border-slate-200 bg-slate-50/60 p-4 text-xs sm:grid-cols-2">
+            <p><span className="text-slate-400">Beneficiary:</span> <strong className="text-slate-800">{guarantee.beneficiary}</strong></p>
+            <p><span className="text-slate-400">Amount:</span> <strong className="font-mono text-slate-800">{formatMoney(guarantee.amount)}</strong></p>
+            <p><span className="text-slate-400">Issuing bank:</span> <strong className="text-slate-800">{guarantee.bank}</strong></p>
+            <p><span className="text-slate-400">Expiry:</span> <strong className="text-slate-800">{guarantee.expiryDate}</strong></p>
+          </div>
+          <div className="rounded-lg border border-emerald-200 bg-emerald-50/50 p-3 text-xs leading-5 text-emerald-800">
+            <ShieldCheck className="mr-1 inline size-4 align-text-bottom" />
+            The prototype demonstrates a PKI-style confirm signature. No real
+            certificate authority, INSA, or trust provider is contacted.
+          </div>
+          <Checkbox
+            checked={signConfirmed}
+            onChange={setSignConfirmed}
+            label="I confirm this applicant signature is authorized for this guarantee"
+            description="Reviewing and attesting does not alter the bank's issued guarantee record."
+          />
+        </div>
+      </Modal>
+      <Modal
+        open={showingCertificate}
+        onClose={() => setShowingCertificate(false)}
+        title="Digital guarantee certificate"
+        description={
+          "Registry certificate for " +
+          guarantee.reference +
+          " · " +
+          guarantee.type +
+          "."
+        }
+        size="lg"
+        footer={
+          <>
+            <Button variant="outline" onClick={() => setShowingCertificate(false)}>
+              Close
+            </Button>
+            <Button
+              onClick={() =>
+                addToast(
+                  "Certificate exported",
+                  "The demonstration certificate PDF was prepared.",
+                  "info",
+                )
+              }
+            >
+              <Download className="size-4" />
+              Export certificate
+            </Button>
+          </>
+        }
+      >
+        <GuaranteeCertificate guarantee={guarantee} />
+      </Modal>
     </>
   );
 }

@@ -15,11 +15,17 @@ import { demoUsers } from "@/mocks/users";
 import type {
   Application,
   ApplicationStatus,
+  ApprovalMatrix,
   AuditEvent,
   Bank,
+  BankBranch,
+  BankRole,
+  BankUser,
   Claim,
+  ClaimStatus,
   CourtCase,
   DemoRoleId,
+  DigitalSignature,
   Dispute,
   Guarantee,
   IntegrationRecord,
@@ -27,6 +33,8 @@ import type {
   NewGuaranteeDraft,
   NotificationRecord,
   Organization,
+  SignatureStatus,
+  SlaRule,
   ToastMessage,
   ToastTone,
 } from "@/types";
@@ -50,6 +58,12 @@ interface DemoContextValue {
   banks: Bank[];
   integrations: IntegrationRecord[];
   organizations: Organization[];
+  signatures: DigitalSignature[];
+  bankBranches: BankBranch[];
+  bankUsers: BankUser[];
+  bankRoles: BankRole[];
+  approvalMatrices: ApprovalMatrix[];
+  slaRules: SlaRule[];
   toasts: ToastMessage[];
   isLoading: boolean;
   busyAction: string | null;
@@ -72,6 +86,27 @@ interface DemoContextValue {
     eventTitle: string,
   ) => Promise<Application | null>;
   issueApplication: (id: string) => Promise<Guarantee | null>;
+  transitionSignature: (id: string, status: SignatureStatus) => Promise<void>;
+  updateClaimStatus: (id: string, status: ClaimStatus) => Promise<void>;
+  createClaim: (claimData: {
+    guaranteeReference: string;
+    applicant: string;
+    beneficiary: string;
+    bank: string;
+    amount: number;
+    reason: string;
+    documentName?: string;
+  }) => Promise<Claim>;
+  signGuaranteeAsApplicant: (guaranteeId: string) => Promise<void>;
+  createBankUser: (user: Omit<BankUser, "id">) => Promise<BankUser>;
+  updateBankUser: (id: string, patch: Partial<BankUser>) => Promise<void>;
+  deleteBankUser: (id: string) => Promise<void>;
+  createBranch: (branch: Omit<BankBranch, "id">) => Promise<BankBranch>;
+  updateBranch: (id: string, patch: Partial<BankBranch>) => Promise<void>;
+  createApprovalMatrix: (matrix: Omit<ApprovalMatrix, "id">) => Promise<ApprovalMatrix>;
+  updateApprovalMatrix: (id: string, patch: Partial<ApprovalMatrix>) => Promise<void>;
+  createSlaRule: (rule: Omit<SlaRule, "id">) => Promise<SlaRule>;
+  updateSlaRule: (id: string, patch: Partial<SlaRule>) => Promise<void>;
   resetDemo: () => Promise<void>;
 }
 
@@ -136,6 +171,12 @@ export function DemoProvider({ children }: { children: ReactNode }) {
   const [banks, setBanks] = useState<Bank[]>([]);
   const [integrations, setIntegrations] = useState<IntegrationRecord[]>([]);
   const [organizations, setOrganizations] = useState<Organization[]>([]);
+  const [signatures, setSignatures] = useState<DigitalSignature[]>([]);
+  const [bankBranches, setBankBranches] = useState<BankBranch[]>([]);
+  const [bankUsers, setBankUsers] = useState<BankUser[]>([]);
+  const [bankRoles, setBankRoles] = useState<BankRole[]>([]);
+  const [approvalMatrices, setApprovalMatrices] = useState<ApprovalMatrix[]>([]);
+  const [slaRules, setSlaRules] = useState<SlaRule[]>([]);
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [busyAction, setBusyAction] = useState<string | null>(null);
@@ -169,6 +210,12 @@ export function DemoProvider({ children }: { children: ReactNode }) {
       setBanks(data.banks);
       setIntegrations(data.integrations);
       setOrganizations(data.organizations);
+      setSignatures(data.signatures);
+      setBankBranches(data.bankBranches);
+      setBankUsers(data.bankUsers);
+      setBankRoles(data.bankRoles);
+      setApprovalMatrices(data.approvalMatrices);
+      setSlaRules(data.slaRules);
     } catch (loadError) {
       setError(
         loadError instanceof Error
@@ -428,6 +475,328 @@ export function DemoProvider({ children }: { children: ReactNode }) {
     [applications, role, transitionApplication],
   );
 
+  const transitionSignature = useCallback(
+    async (id: string, status: SignatureStatus) => {
+      setSignatures((items) =>
+        items.map((item) =>
+          item.id === id
+            ? {
+                ...item,
+                status,
+                signatureTimestamp:
+                  status === "SIGNED" ? "07 Sep 2026 10:15" : item.signatureTimestamp,
+                hash:
+                  status === "SIGNED"
+                    ? "f4a1c9e80b23d5f17a90c6e42b1f8a35"
+                    : item.hash,
+              }
+            : item,
+        ),
+      );
+      addToast(
+        "Signature " + status.toLowerCase(),
+        "Document " + id.toUpperCase() + " updated to " + status.replaceAll("_", " ") + ".",
+        status === "SIGNED" ? "success" : "info",
+      );
+    },
+    [addToast],
+  );
+
+  const updateClaimStatus = useCallback(
+    async (id: string, status: ClaimStatus) => {
+      setBusyAction("claim-" + id);
+      try {
+        setClaims((items) =>
+          items.map((item) =>
+            item.id === id
+              ? {
+                  ...item,
+                  status,
+                  timeline: [
+                    {
+                      id: "evt-claim-" + Date.now(),
+                      title: "Status updated to " + status.replaceAll("_", " "),
+                      description: "Claim workflow progressed.",
+                      date: "07 Sep 2026, just now",
+                      actor: demoUsers[role].name + " · " + demoUsers[role].title,
+                      tone: status === "REJECTED" ? "danger" : "success",
+                    },
+                    ...item.timeline,
+                  ],
+                }
+              : item,
+          ),
+        );
+        addToast("Claim updated", id + " is now " + status.replaceAll("_", " ").toLowerCase() + ".", status === "REJECTED" ? "danger" : "success");
+      } finally {
+        setBusyAction(null);
+      }
+    },
+    [addToast, role],
+  );
+
+  const createClaim = useCallback(
+    async (claimData: {
+      guaranteeReference: string;
+      applicant: string;
+      beneficiary: string;
+      bank: string;
+      amount: number;
+      reason: string;
+      documentName?: string;
+    }): Promise<Claim> => {
+      setBusyAction("create-claim");
+      try {
+        await new Promise((resolve) => window.setTimeout(resolve, 400));
+        const num = Math.floor(185 + Math.random() * 800);
+        const claimId = `CLM-2026-${String(num).padStart(5, "0")}`;
+        const newClaim: Claim = {
+          id: claimId,
+          reference: claimId,
+          guaranteeReference: claimData.guaranteeReference,
+          applicant: claimData.applicant,
+          beneficiary: claimData.beneficiary,
+          beneficiaryId: "org-aacra",
+          bank: claimData.bank,
+          bankId: "bk-cbe",
+          amount: claimData.amount,
+          currency: "ETB",
+          reason: claimData.reason,
+          submittedDate: "07 Sep 2026",
+          status: "SUBMITTED",
+          assignedOfficer: "Meron Assefa · Senior Guarantee Officer",
+          dueDate: "14 Sep 2026",
+          documents: [
+            {
+              id: "doc-claim-" + Date.now(),
+              name: claimData.documentName || "Formal Claim Demand & Evidence.pdf",
+              category: "Claim Evidence",
+              size: "1.4 MB",
+              date: "07 Sep 2026",
+              status: "Signed",
+              version: "v1",
+            },
+          ],
+          timeline: [
+            {
+              id: "evt-claim-" + Date.now(),
+              title: "Claim submitted for bank adjudication",
+              description: `Demand of ETB ${claimData.amount.toLocaleString()} submitted against ${claimData.guaranteeReference}.`,
+              date: "07 Sep 2026, just now",
+              actor: demoUsers[role].name + " · " + demoUsers[role].title,
+              tone: "neutral",
+            },
+          ],
+        };
+        setClaims((prev) => [newClaim, ...prev]);
+        addToast(
+          "Claim lodged successfully",
+          `${claimId} has been registered and queued for bank review.`,
+          "success",
+        );
+        return newClaim;
+      } finally {
+        setBusyAction(null);
+      }
+    },
+    [addToast, role],
+  );
+
+  const signGuaranteeAsApplicant = useCallback(
+    async (guaranteeId: string) => {
+      setBusyAction("sign-applicant-" + guaranteeId);
+      try {
+        await new Promise((resolve) => window.setTimeout(resolve, 450));
+        setGuarantees((items) =>
+          items.map((item) =>
+            item.id === guaranteeId || item.reference === guaranteeId
+              ? {
+                  ...item,
+                  signatureStatus: "SIGNED" as SignatureStatus,
+                  timeline: [
+                    {
+                      id: "evt-sign-" + Date.now(),
+                      title: "Applicant PKI confirm signature applied",
+                      description:
+                        "Cryptographic digital attestation verified via Institutional PKI profile.",
+                      date: "07 Sep 2026, just now",
+                      actor: demoUsers[role].name + " · Authorized Representative",
+                      tone: "success" as const,
+                    },
+                    ...item.timeline,
+                  ],
+                }
+              : item,
+          ),
+        );
+        addToast(
+          "Applicant signature confirmed",
+          `Digital PKI attestation applied to ${guaranteeId}.`,
+          "success",
+        );
+      } finally {
+        setBusyAction(null);
+      }
+    },
+    [addToast, role],
+  );
+
+  const createBankUser = useCallback(
+    async (user: Omit<BankUser, "id">): Promise<BankUser> => {
+      setBusyAction("create-user");
+      try {
+        await new Promise((resolve) => window.setTimeout(resolve, 520));
+        const newUser: BankUser = {
+          ...user,
+          id: "bu-" + Date.now(),
+          createdAt: "07 Sep 2026",
+          lastLogin: "Never",
+        };
+        setBankUsers((items) => [newUser, ...items]);
+        addToast("User created", user.fullName + " was added as " + user.role + ".");
+        return newUser;
+      } finally {
+        setBusyAction(null);
+      }
+    },
+    [addToast],
+  );
+
+  const updateBankUser = useCallback(
+    async (id: string, patch: Partial<BankUser>) => {
+      setBusyAction("update-user");
+      try {
+        await new Promise((resolve) => window.setTimeout(resolve, 420));
+        setBankUsers((items) =>
+          items.map((item) => (item.id === id ? { ...item, ...patch } : item)),
+        );
+        addToast("User updated", "The bank user record was updated.");
+      } finally {
+        setBusyAction(null);
+      }
+    },
+    [addToast],
+  );
+
+  const deleteBankUser = useCallback(
+    async (id: string) => {
+      setBusyAction("delete-user");
+      try {
+        await new Promise((resolve) => window.setTimeout(resolve, 420));
+        setBankUsers((items) => items.filter((item) => item.id !== id));
+        addToast("User deactivated", "The bank user was deactivated.", "info");
+      } finally {
+        setBusyAction(null);
+      }
+    },
+    [addToast],
+  );
+
+  const createBranch = useCallback(
+    async (branch: Omit<BankBranch, "id">): Promise<BankBranch> => {
+      setBusyAction("create-branch");
+      try {
+        await new Promise((resolve) => window.setTimeout(resolve, 520));
+        const newBranch: BankBranch = {
+          ...branch,
+          id: "br-" + Date.now(),
+        };
+        setBankBranches((items) => [newBranch, ...items]);
+        addToast("Branch created", branch.name + " was added.");
+        return newBranch;
+      } finally {
+        setBusyAction(null);
+      }
+    },
+    [addToast],
+  );
+
+  const updateBranch = useCallback(
+    async (id: string, patch: Partial<BankBranch>) => {
+      setBusyAction("update-branch");
+      try {
+        await new Promise((resolve) => window.setTimeout(resolve, 420));
+        setBankBranches((items) =>
+          items.map((item) => (item.id === id ? { ...item, ...patch } : item)),
+        );
+        addToast("Branch updated", "The branch record was updated.");
+      } finally {
+        setBusyAction(null);
+      }
+    },
+    [addToast],
+  );
+
+  const createApprovalMatrix = useCallback(
+    async (matrix: Omit<ApprovalMatrix, "id">): Promise<ApprovalMatrix> => {
+      setBusyAction("create-matrix");
+      try {
+        await new Promise((resolve) => window.setTimeout(resolve, 520));
+        const newMatrix: ApprovalMatrix = {
+          ...matrix,
+          id: "am-" + Date.now(),
+        };
+        setApprovalMatrices((items) => [newMatrix, ...items]);
+        addToast("Matrix rule created", "The approval matrix rule was added.");
+        return newMatrix;
+      } finally {
+        setBusyAction(null);
+      }
+    },
+    [addToast],
+  );
+
+  const updateApprovalMatrix = useCallback(
+    async (id: string, patch: Partial<ApprovalMatrix>) => {
+      setBusyAction("update-matrix");
+      try {
+        await new Promise((resolve) => window.setTimeout(resolve, 420));
+        setApprovalMatrices((items) =>
+          items.map((item) => (item.id === id ? { ...item, ...patch } : item)),
+        );
+        addToast("Matrix rule updated", "The approval matrix rule was updated.");
+      } finally {
+        setBusyAction(null);
+      }
+    },
+    [addToast],
+  );
+
+  const createSlaRule = useCallback(
+    async (rule: Omit<SlaRule, "id">): Promise<SlaRule> => {
+      setBusyAction("create-sla");
+      try {
+        await new Promise((resolve) => window.setTimeout(resolve, 520));
+        const newRule: SlaRule = {
+          ...rule,
+          id: "sla-" + Date.now(),
+        };
+        setSlaRules((items) => [newRule, ...items]);
+        addToast("SLA rule created", "The SLA rule was added.");
+        return newRule;
+      } finally {
+        setBusyAction(null);
+      }
+    },
+    [addToast],
+  );
+
+  const updateSlaRule = useCallback(
+    async (id: string, patch: Partial<SlaRule>) => {
+      setBusyAction("update-sla");
+      try {
+        await new Promise((resolve) => window.setTimeout(resolve, 420));
+        setSlaRules((items) =>
+          items.map((item) => (item.id === id ? { ...item, ...patch } : item)),
+        );
+        addToast("SLA rule updated", "The SLA rule was updated.");
+      } finally {
+        setBusyAction(null);
+      }
+    },
+    [addToast],
+  );
+
   const resetDemo = useCallback(async () => {
     window.localStorage.removeItem(storageKey);
     setRole("applicant");
@@ -454,6 +823,12 @@ export function DemoProvider({ children }: { children: ReactNode }) {
       banks,
       integrations,
       organizations,
+      signatures,
+      bankBranches,
+      bankUsers,
+      bankRoles,
+      approvalMatrices,
+      slaRules,
       toasts,
       isLoading,
       busyAction,
@@ -467,6 +842,19 @@ export function DemoProvider({ children }: { children: ReactNode }) {
       submitApplication,
       transitionApplication,
       issueApplication,
+      transitionSignature,
+      updateClaimStatus,
+      createClaim,
+      signGuaranteeAsApplicant,
+      createBankUser,
+      updateBankUser,
+      deleteBankUser,
+      createBranch,
+      updateBranch,
+      createApprovalMatrix,
+      updateApprovalMatrix,
+      createSlaRule,
+      updateSlaRule,
       resetDemo,
     }),
     [
@@ -482,6 +870,12 @@ export function DemoProvider({ children }: { children: ReactNode }) {
       banks,
       integrations,
       organizations,
+      signatures,
+      bankBranches,
+      bankUsers,
+      bankRoles,
+      approvalMatrices,
+      slaRules,
       toasts,
       isLoading,
       busyAction,
@@ -495,6 +889,19 @@ export function DemoProvider({ children }: { children: ReactNode }) {
       submitApplication,
       transitionApplication,
       issueApplication,
+      transitionSignature,
+      updateClaimStatus,
+      createClaim,
+      signGuaranteeAsApplicant,
+      createBankUser,
+      updateBankUser,
+      deleteBankUser,
+      createBranch,
+      updateBranch,
+      createApprovalMatrix,
+      updateApprovalMatrix,
+      createSlaRule,
+      updateSlaRule,
       resetDemo,
     ],
   );

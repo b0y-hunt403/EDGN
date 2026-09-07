@@ -33,6 +33,13 @@ export const demoAccounts: DemoAccount[] = [
     description: "Addis Ababa City Roads Authority",
   },
   {
+    roleId: "bank-admin",
+    email: "demo.bankadmin@bank.edgn.gov.et",
+    password: DEMO_PASSWORD,
+    label: "Bank Admin",
+    description: "Commercial Bank of Ethiopia (Admin)",
+  },
+  {
     roleId: "bank-maker",
     email: "demo.maker@bank.edgn.gov.et",
     password: DEMO_PASSWORD,
@@ -47,28 +54,35 @@ export const demoAccounts: DemoAccount[] = [
     description: "Commercial Bank of Ethiopia",
   },
   {
-    roleId: "bank-signatory",
+    roleId: "bank-approver",
+    email: "demo.approver@bank.edgn.gov.et",
+    password: DEMO_PASSWORD,
+    label: "Bank Approver",
+    description: "Commercial Bank of Ethiopia",
+  },
+  {
+    roleId: "bank-approver",
     email: "demo.signatory@bank.edgn.gov.et",
     password: DEMO_PASSWORD,
     label: "Bank Signatory",
     description: "Commercial Bank of Ethiopia",
   },
   {
-    roleId: "admin",
+    roleId: "super-admin",
     email: "demo.admin@edgn.gov.et",
     password: DEMO_PASSWORD,
     label: "EDGN Administrator",
-    description: "EDGN Authority",
+    description: "EDGN Authority (Super Admin)",
   },
   {
-    roleId: "court",
+    roleId: "super-admin",
     email: "demo.court@edgn.gov.et",
     password: DEMO_PASSWORD,
     label: "Court Officer",
     description: "Federal First Instance Court",
   },
   {
-    roleId: "developer",
+    roleId: "super-admin",
     email: "demo.developer@edgn.gov.et",
     password: DEMO_PASSWORD,
     label: "API Developer",
@@ -77,7 +91,8 @@ export const demoAccounts: DemoAccount[] = [
 ];
 
 export function findDemoAccountByEmail(email: string): DemoAccount | undefined {
+  const clean = email.trim().toLowerCase();
   return demoAccounts.find(
-    (account) => account.email.toLowerCase() === email.toLowerCase(),
+    (account) => account.email.toLowerCase() === clean,
   );
 }

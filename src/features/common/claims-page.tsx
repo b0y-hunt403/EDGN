@@ -52,7 +52,7 @@ export function ClaimsPage({ portal }: { portal: PortalId }) {
             : "Track claims, bank decisions, and settlement state."
         }
         actions={
-          portal === "beneficiary" ? (
+          portal === "beneficiary" || portal === "applicant" ? (
             <Button
               onClick={() => {
                 setOpen(true);
@@ -61,7 +61,7 @@ export function ClaimsPage({ portal }: { portal: PortalId }) {
               }}
             >
               <Plus className="size-4" />
-              Submit claim
+              {portal === "applicant" ? "New claim" : "Submit claim"}
             </Button>
           ) : undefined
         }

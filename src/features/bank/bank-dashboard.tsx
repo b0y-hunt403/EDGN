@@ -29,29 +29,38 @@ export function BankDashboard() {
   const { role, applications, guarantees, claims } = useDemo();
   const router = useRouter();
   const roleConfig =
-    role === "bank-checker"
+    role === "bank-approver"
       ? {
-          title: "Credit approval overview",
-          description: "Review prepared guarantee applications and approval exposure.",
-          queue: "Approval queue",
-          queueHref: "/bank/approvals",
-          statuses: ["PENDING_CHECKER"],
+          title: "Authorization overview",
+          description: "Review approved guarantee records awaiting final signature.",
+          queue: "Signature queue",
+          queueHref: "/bank/signatures",
+          statuses: ["APPROVED", "PENDING_SIGNATURE"],
         }
-      : role === "bank-signatory"
+      : role === "bank-checker"
         ? {
-            title: "Authorization overview",
-            description: "Review approved guarantee records awaiting final signature.",
-            queue: "Signature queue",
-            queueHref: "/bank/signatures",
-            statuses: ["APPROVED", "PENDING_SIGNATURE"],
+            title: "Credit approval overview",
+            description: "Review prepared guarantee applications and approval exposure.",
+            queue: "Approval queue",
+            queueHref: "/bank/pending-reviews",
+            statuses: ["PENDING_CHECKER"],
           }
-        : {
-            title: "Guarantee operations overview",
-            description: "Prioritized maker work, applicant information, and SLA attention.",
-            queue: "Open work queue",
-            queueHref: "/bank/work-queue",
-            statuses: ["SUBMITTED", "UNDER_REVIEW", "MORE_INFORMATION_REQUIRED"],
-          };
+        : role === "bank-admin"
+          ? {
+              title: "Bank administration overview",
+              description:
+                "Bank configuration, guarantee operations, and user management at a glance.",
+              queue: "Platform overview",
+              queueHref: "/bank/admin/guarantees",
+              statuses: ["SUBMITTED", "UNDER_REVIEW", "MORE_INFORMATION_REQUIRED"],
+            }
+          : {
+              title: "Guarantee operations overview",
+              description: "Prioritized maker work, applicant information, and SLA attention.",
+              queue: "Open work queue",
+              queueHref: "/bank/my-guarantees",
+              statuses: ["SUBMITTED", "UNDER_REVIEW", "MORE_INFORMATION_REQUIRED"],
+            };
   const queue = applications.filter((item) => roleConfig.statuses.includes(item.status));
 
   const columns: DataColumn<Application>[] = [
@@ -113,7 +122,7 @@ export function BankDashboard() {
   const routeFor = (item: Application) =>
     role === "bank-checker"
       ? "/bank/applications/" + item.id + "/checker"
-      : role === "bank-signatory"
+      : role === "bank-approver"
         ? "/bank/applications/" + item.id + "/sign"
         : "/bank/applications/" + item.id + "/maker";
 
