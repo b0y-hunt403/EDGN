@@ -6,6 +6,7 @@ import {
   AlertTriangle,
   ArrowRight,
   Building2,
+  Check,
   Landmark,
   LockKeyhole,
   Network,
@@ -30,8 +31,8 @@ export function AdminDashboard() {
         description="System health, institutional participation, guarantee registry, integration, and security posture."
         actions={
           <div className="inline-flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-semibold text-emerald-700">
-            <span className="size-2 rounded-full bg-emerald-500" />
-            All core demo services operational
+            <Check className="size-3.5 text-emerald-700" />
+            Core registry services operational
           </div>
         }
       />

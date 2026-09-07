@@ -22,7 +22,7 @@ export function Topbar({ onOpenMenu }: { onOpenMenu: () => void }) {
   }
 
   return (
-    <header className="sticky top-0 z-30 flex h-[72px] items-center border-b border-slate-200 bg-white/95 px-4 backdrop-blur sm:px-6">
+    <header className="sticky top-0 z-30 flex h-[72px] items-center border-b border-slate-200 bg-white px-4 sm:px-6">
       <button
         type="button"
         onClick={onOpenMenu}

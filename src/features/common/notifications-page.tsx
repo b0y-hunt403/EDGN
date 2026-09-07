@@ -55,7 +55,7 @@ export function NotificationsPage() {
                     item.category === "expiry"
                       ? "bg-amber-50 text-amber-700"
                       : item.category === "security"
-                        ? "bg-violet-50 text-violet-700"
+                        ? "bg-slate-100 text-slate-700"
                         : item.category === "integration"
                           ? "bg-blue-50 text-blue-700"
                           : "bg-emerald-50 text-emerald-700",
@@ -66,7 +66,11 @@ export function NotificationsPage() {
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
                     <p className="text-sm font-semibold text-slate-900">{item.title}</p>
-                    {!item.read ? <span className="size-2 rounded-full bg-[#0f6f68]" /> : null}
+                    {!item.read ? (
+                      <span className="rounded bg-[#0f6f68]/10 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#0f6f68]">
+                        Unread
+                      </span>
+                    ) : null}
                   </div>
                   <p className="mt-1 text-sm leading-6 text-slate-500">{item.message}</p>
                   <p className="mt-1.5 text-xs font-medium text-slate-400">{item.time}</p>

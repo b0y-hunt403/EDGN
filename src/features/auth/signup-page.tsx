@@ -16,6 +16,7 @@ import {
   Code2,
   LoaderCircle,
   CheckCircle2,
+  Check,
   ShieldCheck,
   Eye,
   EyeOff,
@@ -285,7 +286,7 @@ export function SignupPage() {
                         : "bg-white/10 text-slate-400",
                   )}
                 >
-                  {step > i + 1 ? "✓" : i + 1}
+                  {step > i + 1 ? <Check className="size-3.5" /> : i + 1}
                 </div>
                 <span
                   className={cn(
@@ -334,7 +335,7 @@ export function SignupPage() {
                         : "bg-slate-200 text-slate-500",
                   )}
                 >
-                  {step > i + 1 ? "✓" : i + 1}
+                  {step > i + 1 ? <Check className="size-2.5" /> : i + 1}
                 </div>
                 {i < stepLabels.length - 1 ? (
                   <div

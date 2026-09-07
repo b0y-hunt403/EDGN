@@ -1,14 +1,14 @@
 import {
   AlertTriangle,
   Check,
-  Circle,
   Clock3,
+  Info,
   ShieldCheck,
   X,
 } from "lucide-react";
 import { cn, humanizeStatus } from "@/lib/utils";
 
-type Tone = "success" | "warning" | "danger" | "info" | "neutral" | "purple";
+type Tone = "success" | "warning" | "danger" | "info" | "neutral" | "judicial";
 
 function toneForStatus(status: string): Tone {
   const value = status.toUpperCase();
@@ -53,27 +53,27 @@ function toneForStatus(status: string): Tone {
       value.includes(term),
     )
   )
-    return "purple";
+    return "judicial";
   if (["SUBMITTED", "UNDER_REVIEW"].some((term) => value.includes(term)))
     return "info";
   return "neutral";
 }
 
 const styles: Record<Tone, string> = {
-  success: "border-emerald-200 bg-emerald-50 text-emerald-700",
-  warning: "border-amber-200 bg-amber-50 text-amber-700",
-  danger: "border-rose-200 bg-rose-50 text-rose-700",
-  info: "border-blue-200 bg-blue-50 text-blue-700",
-  neutral: "border-slate-200 bg-slate-50 text-slate-600",
-  purple: "border-violet-200 bg-violet-50 text-violet-700",
+  success: "border-emerald-200 bg-emerald-50 text-emerald-800",
+  warning: "border-amber-200 bg-amber-50 text-amber-800",
+  danger: "border-rose-200 bg-rose-50 text-rose-800",
+  info: "border-blue-200 bg-blue-50 text-blue-800",
+  neutral: "border-slate-200 bg-slate-50 text-slate-700",
+  judicial: "border-slate-300 bg-slate-100 text-slate-800",
 };
 
 function ToneIcon({ tone }: { tone: Tone }) {
   if (tone === "success") return <Check className="size-3" />;
   if (tone === "warning") return <Clock3 className="size-3" />;
   if (tone === "danger") return <X className="size-3" />;
-  if (tone === "purple") return <ShieldCheck className="size-3" />;
-  if (tone === "info") return <Circle className="size-2 fill-current" />;
+  if (tone === "judicial") return <ShieldCheck className="size-3" />;
+  if (tone === "info") return <Info className="size-3" />;
   return <AlertTriangle className="size-3" />;
 }
 

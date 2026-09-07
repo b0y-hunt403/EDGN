@@ -14,6 +14,7 @@ import {
   ShieldCheck,
   ArrowRight,
   LoaderCircle,
+  Check,
 } from "lucide-react";
 import { useAuth } from "@/store/auth-store";
 import { findDemoAccountByEmail } from "@/mocks/demo-accounts";
@@ -107,9 +108,7 @@ export function LoginPage() {
               "Court integration for dispute resolution",
             ].map((feature) => (
               <div key={feature} className="flex items-start gap-3">
-                <div className="mt-0.5 size-5 shrink-0 rounded-full bg-[#62d2bd]/15 flex items-center justify-center">
-                  <div className="size-1.5 rounded-full bg-[#62d2bd]" />
-                </div>
+                <Check className="mt-0.5 size-4 shrink-0 text-[#62d2bd]" />
                 <span className="text-sm text-slate-300">{feature}</span>
               </div>
             ))}
